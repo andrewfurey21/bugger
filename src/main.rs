@@ -4,14 +4,16 @@ use std::fs::{File, OpenOptions};
 use csv::Writer;
 
 const file_name: &str = "bugs.csv";
+const header: &'static [&'static str] = &["source", "description", "solution", "found", "solved", "tags", "status"];
 
-
-fn main() {
-
+fn get_log() -> File {
     let bugs_path = Path::new(file_name);
     if !bugs_path.exists() {
-        println!("Creating file.");
+        println!("Creating log...");
         File::create(bugs_path).unwrap();
+        let mut writer = Writer::from_path(bugs_path).unwrap();
+        writer.write_record(header);
+        writer.flush();
     }
 
     let mut file = OpenOptions::new()
@@ -20,13 +22,11 @@ fn main() {
         .open(bugs_path)
         .unwrap();
 
-    let mut writer = Writer::from_writer(file);
-    writer.write_record(&["1", "2", "3", "4", "5", "6", "7"]);
-    writer.write_record(&["1", "2", "3", "4", "5", "6", "7"]);
-    writer.write_record(&["1", "2", "3", "4", "5", "6", "7"]);
-    writer.flush();
+    return file;
+}
 
-    let m = Command::new("bugger")
+fn cli() -> Command {
+    Command::new("bugger")
         .subcommand(
             Command::new("create")
                 .about("Create a bug log")
@@ -65,7 +65,15 @@ fn main() {
             Command::new("tag")
                 .about("Add a tag to the bug.")
         )
-        .get_matches();
+}
+
+fn main() {
+    let mut log = get_log();
+    let mut writer = Writer::from_writer(log);
+
+    let command = cli();
+    let m = command.get_matches();
+
 
     match m.subcommand() {
         Some(("create", sub_matches)) => {
