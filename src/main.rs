@@ -1,7 +1,7 @@
 use clap::{ Command };
 use std::path::Path;
 use std::fs::{File, OpenOptions};
-use csv::Writer;
+use csv::{ Writer, ReaderBuilder };
 use std::io::Write;
 
 const file_name: &str = "bugs.csv";
@@ -110,7 +110,15 @@ fn main() {
             writer.flush();
         }
         Some(("list", _)) => {
-            println!("Listing the logs")
+            let mut reader = ReaderBuilder::new().from_path(file_name).unwrap();
+            for (i, result) in reader.records().enumerate() {
+                let record = result.unwrap();
+                print!("{}: ", i);
+                for item in &record {
+                    print!("{} ;; ", item);
+                }
+                println!("");
+            }
         }
         Some(("solve", sub_matches)) => {
             println!("Solving a bug")
