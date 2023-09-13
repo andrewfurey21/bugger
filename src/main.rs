@@ -1,6 +1,31 @@
 use clap::{ arg, Command };
+use std::path::Path;
+use std::fs::{File, OpenOptions};
+use csv::Writer;
+
+const file_name: &str = "bugs.csv";
+
 
 fn main() {
+
+    let bugs_path = Path::new(file_name);
+    if !bugs_path.exists() {
+        println!("Creating file.");
+        File::create(bugs_path).unwrap();
+    }
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(bugs_path)
+        .unwrap();
+
+    let mut writer = Writer::from_writer(file);
+    writer.write_record(&["1", "2", "3", "4", "5", "6", "7"]);
+    writer.write_record(&["1", "2", "3", "4", "5", "6", "7"]);
+    writer.write_record(&["1", "2", "3", "4", "5", "6", "7"]);
+    writer.flush();
+
     let m = Command::new("bugger")
         .subcommand(
             Command::new("create")
@@ -69,4 +94,5 @@ fn main() {
         }
         _ => ()
     }
+
 }
