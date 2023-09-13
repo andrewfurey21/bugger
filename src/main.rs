@@ -1,7 +1,8 @@
-use clap::{ arg, Command };
+use clap::{ Command };
 use std::path::Path;
 use std::fs::{File, OpenOptions};
 use csv::Writer;
+use std::io::Write;
 
 const file_name: &str = "bugs.csv";
 const header: &'static [&'static str] = &["source", "description", "solution", "found", "solved", "tags", "status"];
@@ -29,9 +30,7 @@ fn cli() -> Command {
     Command::new("bugger")
         .subcommand(
             Command::new("create")
-                .about("Create a bug log")
-                .arg(arg!(<DESC> "Description of bug"))
-                .arg_required_else_help(true)
+                .about("Create a log")
         )
         .subcommand(
             Command::new("list")
@@ -65,6 +64,10 @@ fn cli() -> Command {
             Command::new("tag")
                 .about("Add a tag to the bug.")
         )
+        .subcommand(
+            Command::new("reset")
+                .about("Reset the logs file. Must use --force tag.")
+        )
 }
 
 fn main() {
@@ -77,7 +80,34 @@ fn main() {
 
     match m.subcommand() {
         Some(("create", sub_matches)) => {
-            println!("Creating bug log: {}", sub_matches.get_one::<String>("DESC").expect("required"))
+            let mut source = String::new();
+            let mut tags = String::new();
+            let mut desc = String::new();
+
+            print!("Source: ");
+            std::io::stdout().flush();
+            let mut stdin = std::io::stdin();
+            stdin.read_line(&mut source);
+            print!("Description: ");
+            std::io::stdout().flush();
+            stdin = std::io::stdin();
+            stdin.read_line(&mut desc);
+            print!("tags (delim=' '): ");
+            std::io::stdout().flush();
+            stdin = std::io::stdin();
+            stdin.read_line(&mut tags);
+            let source = source.trim();
+            let desc = desc.trim();
+            let tags = tags.trim();
+
+            println!("Source of bug: {}", source);
+            println!("Bug description: {}", desc);
+
+
+            let date = chrono::offset::Utc::now().date_naive().format("%Y-%m-%d").to_string();
+            let record = &[source, desc, "unknown", date.as_str(), "unknown", tags, "unsolved"];
+            writer.write_record(record);
+            writer.flush();
         }
         Some(("list", _)) => {
             println!("Listing the logs")
@@ -100,7 +130,11 @@ fn main() {
         Some(("tag", sub_matches)) => {
             println!("Adding a tag/s to a bug")
         }
+        Some(("force", sub_matches)) => {
+            println!("Reseting the bugs file.")
+        }
         _ => ()
     }
+
 
 }
