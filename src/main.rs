@@ -87,10 +87,16 @@ VALUES ('{}', '{}', 'unknown', '{}', 'unknown', '{}', 'unknown')",
         }
         Some(("list", _)) => {
             let query = "SELECT * from bugs";
+            for item in header {
+                print!("{} :: ", item);
+            }
+            println!("");
             connection.iterate(query, |pairs| {
                 for &(name, value) in pairs {
-                    println!("{}={}", name, value.unwrap());
+                    let item = value.unwrap();
+                    print!("{} :: ", item);
                 }
+                println!("");
                 true
             });
         }
