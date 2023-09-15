@@ -1,10 +1,13 @@
 #![allow(unused)]
 use cli::cli;
-use data::*;
+
 use std::io::Write;
+use std::fs::File;
 
 mod cli;
 mod data;
+
+const FILE_NAME: &str = "bugs.csv";
 
 fn io(display: &str, retrieve: &mut String) {
     print!("{}", display);
@@ -14,6 +17,10 @@ fn io(display: &str, retrieve: &mut String) {
 }
 
 fn main() {
+    if let Err(error) = File::open(FILE_NAME) {
+        File::create(FILE_NAME);
+        data::write_header(FILE_NAME);
+    }
     let matches = cli().get_matches();
 
     match matches.subcommand() {
@@ -31,7 +38,9 @@ fn main() {
                 .format("%Y-%m-%d")
                 .to_string();
         }
-        Some(("list", _)) => {}
+        Some(("list", _)) => {
+            data::list_csv(FILE_NAME);
+        }
         Some(("solve", sub_matches)) => {}
         Some(("temp", sub_matches)) => {
             println!("Marking bug has a temp fix.")
