@@ -1,24 +1,17 @@
 #![allow(unused)]
 use cli::cli;
 
-use std::io::Write;
 use std::fs::{File, OpenOptions};
+use std::io::Write;
 
 mod cli;
 mod data;
 
 const FILE_NAME: &str = "bugs.csv";
 
-fn io(display: &str, retrieve: &mut String) {
-    print!("{}", display);
-    std::io::stdout().flush();
-    let stdin = std::io::stdin();
-    stdin.read_line(retrieve);
-}
-
 fn main() {
     let file = File::options().append(true).open(FILE_NAME);
-    if let Err(error) = file {
+    if let Err(_) = file {
         println!("Creating new file.");
         File::create(FILE_NAME);
         data::write_header(FILE_NAME);
@@ -31,19 +24,20 @@ fn main() {
             let mut desc = String::new();
             let mut tags = String::new();
 
-            io("Source: ", &mut source);
-            io("Description: ", &mut desc);
-            io("tags (delim=' '): ", &mut tags);
+            data::io("Source: ", &mut source);
+            data::io("Description: ", &mut desc);
+            data::io("tags (delim=' '): ", &mut tags);
 
             data::write_new_entry(FILE_NAME, &source, &desc, &tags);
         }
         Some(("list", _)) => {
             data::list_csv(FILE_NAME);
         }
-        Some(("solve", sub_matches)) => {}
-        Some(("temp", sub_matches)) => {
-            println!("Marking bug has a temp fix.")
+        Some(("solve", sub_matches)) => {
+            data::edit_line(FILE_NAME, 0, data::Status::Solved);
         }
+        Some(("temp", sub_matches)) => {}
+        Some(("unsolved", sub_matches)) => {}
         _ => (),
     }
 }

@@ -15,3 +15,6 @@ pub fn cli() -> Command {
         .subcommand(Command::new("tag").about("Add a tag to the bug."))
         .subcommand(Command::new("reset").about("Reset the logs file. Must use --force tag."))
 }
+
+//TODO:
+//list out unsolved bugs
