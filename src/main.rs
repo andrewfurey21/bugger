@@ -39,6 +39,9 @@ fn main() {
             data::edit_line(FILE_NAME, id, data::Status::Solved);
         }
         Some(("temp", sub_matches)) => {
+            let id = sub_matches.get_one::<String>("id").unwrap();
+            let id = id.parse::<usize>().unwrap();
+            data::edit_line(FILE_NAME, id, data::Status::Temp);
 
         }
         //Some(("unsolved", sub_matches)) => {}

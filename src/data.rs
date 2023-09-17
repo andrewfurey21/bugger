@@ -65,8 +65,10 @@ pub fn edit_line(file_name: &str, index: usize, status: Status) {
     let data = std::fs::read_to_string(file_name).unwrap();
     let mut data  = data.split('\n').collect::<Vec<_>>();
     data.remove(0);
+    data.remove(data.len()-1);
     let update = data.iter().filter(|line| {
         let split_line = line.split(DELIMITER).collect::<Vec<_>>();
+        //println!("{:?}", split_line);
         let i = split_line[0].parse::<usize>().unwrap();
         index == i
     }).collect::<Vec<_>>();
