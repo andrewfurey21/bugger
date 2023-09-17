@@ -34,10 +34,14 @@ fn main() {
             data::list_csv(FILE_NAME);
         }
         Some(("solve", sub_matches)) => {
-            data::edit_line(FILE_NAME, 0, data::Status::Solved);
+            let id = sub_matches.get_one::<String>("id").unwrap();
+            let id = id.parse::<usize>().unwrap();
+            data::edit_line(FILE_NAME, id, data::Status::Solved);
         }
-        Some(("temp", sub_matches)) => {}
-        Some(("unsolved", sub_matches)) => {}
+        Some(("temp", sub_matches)) => {
+
+        }
+        //Some(("unsolved", sub_matches)) => {}
         _ => (),
     }
 }

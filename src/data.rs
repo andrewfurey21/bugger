@@ -76,27 +76,30 @@ pub fn edit_line(file_name: &str, index: usize, status: Status) {
         !(index == i)
     }).collect::<Vec<_>>();
 
+    let split_line = update[0].split(DELIMITER).collect::<Vec<_>>();
+    let id = String::from(split_line[0]);
+    let source = String::from(split_line[1]);
+    let desc = String::from(split_line[2]);
+    let found = String::from(split_line[4]);
+    let tags = String::from(split_line[6]);
+
+    let date_solved = chrono::offset::Utc::now()
+        .date_naive()
+        .format("%Y-%m-%d")
+        .to_string();
     let new_line = match status {
         Status::Solved => {
-            let split_line = update[0].split(DELIMITER).collect::<Vec<_>>();
-            let id = String::from(split_line[0]);
-            let source = String::from(split_line[1]);
-            let desc = String::from(split_line[2]);
-            let found = String::from(split_line[4]);
-            let tags = String::from(split_line[6]);
-
-            let date_solved = chrono::offset::Utc::now()
-                .date_naive()
-                .format("%Y-%m-%d")
-                .to_string();
-
             let mut solution = String::new();
             io("Solution: ", &mut solution);
             let solution = String::from(solution.trim());
             vec![id, source, desc, solution, found, date_solved, tags, String::from("solved")]
         }
-        //Status::Temp => {
-        //}
+        Status::Temp => {
+            let mut solution = String::new();
+            io("Temp Solution: ", &mut solution);
+            let solution = String::from(solution.trim());
+            vec![id, source, desc, solution, found, date_solved, tags, String::from("temp")]
+        }
         //Status::Unsolved => {
         //}
         _ => {vec![String::new()]}
