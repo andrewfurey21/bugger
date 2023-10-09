@@ -78,6 +78,7 @@ pub fn edit_line(file_name: &str, index: usize, status: Status) {
         !(index == i)
     }).collect::<Vec<_>>();
 
+
     let split_line = update[0].split(DELIMITER).collect::<Vec<_>>();
     let id = String::from(split_line[0]);
     let source = String::from(split_line[1]);
