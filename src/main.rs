@@ -9,12 +9,17 @@ mod data;
 
 const FILE_NAME: &str = "bugs.csv";
 
+//Set to where ever you want the bugs.csv
+const DIR_NAME: &str = "/home/andrew/";
+
 fn main() {
-    let file = File::options().append(true).open(FILE_NAME);
+    let file_path = std::path::PathBuf::from(DIR_NAME).join(FILE_NAME);
+
+    let file = File::options().append(true).open(&file_path);
     if let Err(_) = file {
-        println!("Creating new file.");
-        File::create(FILE_NAME);
-        data::write_header(FILE_NAME);
+        println!("Creating new {} file.", FILE_NAME);
+        File::create(&file_path).unwrap();
+        data::write_header(&file_path);
     }
     let matches = cli().get_matches();
 
@@ -28,20 +33,20 @@ fn main() {
             data::io("Description: ", &mut desc);
             data::io("tags (delim=' '): ", &mut tags);
 
-            data::write_new_entry(FILE_NAME, &source, &desc, &tags);
+            data::write_new_entry(&file_path, &source, &desc, &tags);
         }
         Some(("list", _)) => {
-            data::list_csv(FILE_NAME);
+            data::list_csv(&file_path);
         }
         Some(("solve", sub_matches)) => {
             let id = sub_matches.get_one::<String>("id").unwrap();
             let id = id.parse::<usize>().unwrap();
-            data::edit_line(FILE_NAME, id, data::Status::Solved);
+            data::edit_line(&file_path, id, data::Status::Solved);
         }
         Some(("temp", sub_matches)) => {
             let id = sub_matches.get_one::<String>("id").unwrap();
             let id = id.parse::<usize>().unwrap();
-            data::edit_line(FILE_NAME, id, data::Status::Temp);
+            data::edit_line(&file_path, id, data::Status::Temp);
 
         }
         //Some(("unsolved", sub_matches)) => {}
@@ -49,7 +54,3 @@ fn main() {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    // header, delimiter, commands, args
-}

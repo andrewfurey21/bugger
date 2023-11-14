@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::Write;
+use std::path::PathBuf;
 
 static HEADER: &[&'static str] = &[
     "id",
@@ -29,7 +30,7 @@ pub enum Status {
 }
 
 
-pub fn write_header(file_name: &str) {
+pub fn write_header(file_name: &PathBuf) {
     let mut file = std::fs::File::options().append(true).open(file_name).expect("Couldn't open file.");
     for col in HEADER {
         write!(file, "{};", col);
@@ -37,12 +38,12 @@ pub fn write_header(file_name: &str) {
     writeln!(file, "");
 }
 
-pub fn list_csv(file_name: &str) {
+pub fn list_csv(file_name: &PathBuf) {
     let data = std::fs::read_to_string(file_name).unwrap();
     println!("{}", data);
 }
 
-pub fn write_new_entry(file_name: &str, source: &String, desc: &String, tags: &String) {
+pub fn write_new_entry(file_name: &PathBuf, source: &String, desc: &String, tags: &String) {
     let mut file = std::fs::File::options().append(true).open(file_name).expect("Couldn't open file.");
     let source = source.trim();
     let desc = desc.trim();
@@ -61,17 +62,18 @@ pub fn write_new_entry(file_name: &str, source: &String, desc: &String, tags: &S
     }
 }
 
-pub fn edit_line(file_name: &str, index: usize, status: Status) {
+pub fn edit_line(file_name: &PathBuf, index: usize, status: Status) {
     let data = std::fs::read_to_string(file_name).unwrap();
     let mut data  = data.split('\n').collect::<Vec<_>>();
     data.remove(0);
     data.remove(data.len()-1);
+
     let update = data.iter().filter(|line| {
         let split_line = line.split(DELIMITER).collect::<Vec<_>>();
-        //println!("{:?}", split_line);
         let i = split_line[0].parse::<usize>().unwrap();
         index == i
     }).collect::<Vec<_>>();
+
     let data = data.iter().filter(|line| {
         let split_line = line.split(DELIMITER).collect::<Vec<_>>();
         let i = split_line[0].parse::<usize>().unwrap();
@@ -121,4 +123,9 @@ pub fn edit_line(file_name: &str, index: usize, status: Status) {
         write!(file, "{};", item);
     }
     writeln!(file, "");
+}
+
+#[cfg(test)]
+mod tests {
+    // header, delimiter, commands, args
 }

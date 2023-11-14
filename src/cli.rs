@@ -15,13 +15,8 @@ pub fn cli() -> Command {
                 .about("Marking bug as temporarily solved.")
                 .arg(arg!(-i --id <ID>)
                 .required(true))
-                //.default_value("0")
-                //.value_parser(clap::value_parser!(usize))),
         )
         .subcommand(Command::new("unsolved").about("Marking bug as unsolved"))
-       // .subcommand(Command::new("delete").about("Delete a bug."))
-       // .subcommand(Command::new("tag").about("Add a tag to the bug."))
-       // .subcommand(Command::new("reset").about("Reset the logs file. Must use --force tag."))
 }
 
 //TODO:
