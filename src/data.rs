@@ -2,6 +2,8 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
+use prettytable::{self, color, Attr, Cell, Row};
+
 static HEADER: &[&'static str] = &[
     "id",
     "source",
@@ -41,8 +43,47 @@ pub fn write_header(file_name: &PathBuf) {
 }
 
 pub fn list_csv(file_name: &PathBuf) {
+    let mut table = prettytable::Table::new();
+
+    let mut header: Vec<Cell> = vec![];
+    for item in HEADER {
+        header.push(
+            Cell::new(*item)
+                .with_style(Attr::Bold)
+                .with_style(Attr::ForegroundColor(color::CYAN)),
+        );
+    }
+    table.add_row(Row::new(header));
+
     let data = std::fs::read_to_string(file_name).unwrap();
-    println!("{}", data);
+    let data = data.trim();
+    let mut data = data.split("\n").collect::<Vec<_>>();
+    data.remove(0);
+    for line in data {
+        let mut items = line.split(DELIMITER).collect::<Vec<_>>();
+        items.pop();
+        let mut row = Row::empty();
+        for index in 0..items.len() {
+            if index == 7 {
+                match items[index] {
+                    "solved" => row.add_cell(
+                        Cell::new(items[index]).with_style(Attr::ForegroundColor(color::GREEN)),
+                    ),
+                    "temp" => row.add_cell(
+                        Cell::new(items[index]).with_style(Attr::ForegroundColor(color::YELLOW)),
+                    ),
+                    "unsolved" => row.add_cell(
+                        Cell::new(items[index]).with_style(Attr::ForegroundColor(color::RED)),
+                    ),
+                    item => panic!("Unknown status item: {}", item),
+                }
+            } else {
+                row.add_cell(Cell::new(items[index]));
+            }
+        }
+        table.add_row(row);
+    }
+    table.printstd();
 }
 
 pub fn write_new_entry(file_name: &PathBuf, source: &String, desc: &String, tags: &String) {
@@ -64,7 +105,7 @@ pub fn write_new_entry(file_name: &PathBuf, source: &String, desc: &String, tags
         .format("%Y-%m-%d")
         .to_string();
     let items = [
-        &id, source, desc, "unknown", date, "unknown", tags, "unknown",
+        &id, source, desc, "unknown", date, "unknown", tags, "unsolved",
     ];
     for col in items {
         write!(file, "{};", col);
@@ -76,7 +117,7 @@ pub fn edit_line(file_name: &PathBuf, index: usize, status: Status) {
     let data = std::fs::read_to_string(file_name).unwrap();
     let mut data = data.split('\n').collect::<Vec<_>>();
     data.remove(0);
-    //data.remove(data.len()-1);
+    data.remove(data.len() - 1);
 
     let update = data
         .iter()

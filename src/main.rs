@@ -1,4 +1,3 @@
-#![allow(unused)]
 use cli::cli;
 
 use std::fs::{File, OpenOptions};
@@ -49,7 +48,6 @@ fn main() {
             let id = id.parse::<usize>().unwrap();
             data::edit_line(&file_path, id, data::Status::Temp);
         }
-        //Some(("unsolved", sub_matches)) => {}
         _ => (),
     }
 }
