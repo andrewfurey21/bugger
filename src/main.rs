@@ -36,6 +36,7 @@ fn main() {
             data::write_new_entry(&file_path, &source, &desc, &tags);
         }
         Some(("list", _)) => {
+            //TODO: should only print unsolved, extra args for all or temp/solved
             data::list_csv(&file_path);
         }
         Some(("solve", sub_matches)) => {
@@ -47,10 +48,8 @@ fn main() {
             let id = sub_matches.get_one::<String>("id").unwrap();
             let id = id.parse::<usize>().unwrap();
             data::edit_line(&file_path, id, data::Status::Temp);
-
         }
         //Some(("unsolved", sub_matches)) => {}
         _ => (),
     }
 }
-

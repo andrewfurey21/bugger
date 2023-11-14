@@ -15,7 +15,6 @@ static HEADER: &[&'static str] = &[
 const HEADER_LENGTH: usize = 8;
 const DELIMITER: char = ';';
 
-
 pub fn io(display: &str, retrieve: &mut String) {
     print!("{}", display);
     std::io::stdout().flush();
@@ -29,9 +28,12 @@ pub enum Status {
     Unsolved,
 }
 
-
 pub fn write_header(file_name: &PathBuf) {
-    let mut file = std::fs::File::options().append(true).open(file_name).expect("Couldn't open file.");
+    let mut file = std::fs::File::options()
+        .append(true)
+        .open(file_name)
+        .expect("Couldn't open file.");
+
     for col in HEADER {
         write!(file, "{};", col);
     }
@@ -44,11 +46,18 @@ pub fn list_csv(file_name: &PathBuf) {
 }
 
 pub fn write_new_entry(file_name: &PathBuf, source: &String, desc: &String, tags: &String) {
-    let mut file = std::fs::File::options().append(true).open(file_name).expect("Couldn't open file.");
+    let mut file = std::fs::File::options()
+        .append(true)
+        .open(file_name)
+        .expect("Couldn't open file.");
     let source = source.trim();
     let desc = desc.trim();
     let tags = tags.trim();
-    let id = std::fs::read_to_string(file_name).unwrap().split("\n").count()-2;
+    let id = std::fs::read_to_string(file_name)
+        .unwrap()
+        .split("\n")
+        .count()
+        - 2;
     let id = id.to_string();
     let date = &chrono::offset::Utc::now()
         .date_naive()
@@ -60,26 +69,32 @@ pub fn write_new_entry(file_name: &PathBuf, source: &String, desc: &String, tags
     for col in items {
         write!(file, "{};", col);
     }
+    writeln!(file, "");
 }
 
 pub fn edit_line(file_name: &PathBuf, index: usize, status: Status) {
     let data = std::fs::read_to_string(file_name).unwrap();
-    let mut data  = data.split('\n').collect::<Vec<_>>();
+    let mut data = data.split('\n').collect::<Vec<_>>();
     data.remove(0);
-    data.remove(data.len()-1);
+    //data.remove(data.len()-1);
 
-    let update = data.iter().filter(|line| {
-        let split_line = line.split(DELIMITER).collect::<Vec<_>>();
-        let i = split_line[0].parse::<usize>().unwrap();
-        index == i
-    }).collect::<Vec<_>>();
+    let update = data
+        .iter()
+        .filter(|line| {
+            let split_line = line.split(DELIMITER).collect::<Vec<_>>();
+            let i = split_line[0].parse::<usize>().unwrap();
+            index == i
+        })
+        .collect::<Vec<_>>();
 
-    let data = data.iter().filter(|line| {
-        let split_line = line.split(DELIMITER).collect::<Vec<_>>();
-        let i = split_line[0].parse::<usize>().unwrap();
-        !(index == i)
-    }).collect::<Vec<_>>();
-
+    let data = data
+        .iter()
+        .filter(|line| {
+            let split_line = line.split(DELIMITER).collect::<Vec<_>>();
+            let i = split_line[0].parse::<usize>().unwrap();
+            !(index == i)
+        })
+        .collect::<Vec<_>>();
 
     let split_line = update[0].split(DELIMITER).collect::<Vec<_>>();
     let id = String::from(split_line[0]);
@@ -97,17 +112,37 @@ pub fn edit_line(file_name: &PathBuf, index: usize, status: Status) {
             let mut solution = String::new();
             io("Solution: ", &mut solution);
             let solution = String::from(solution.trim());
-            vec![id, source, desc, solution, found, date_solved, tags, String::from("solved")]
+            vec![
+                id,
+                source,
+                desc,
+                solution,
+                found,
+                date_solved,
+                tags,
+                String::from("solved"),
+            ]
         }
         Status::Temp => {
             let mut solution = String::new();
             io("Temp Solution: ", &mut solution);
             let solution = String::from(solution.trim());
-            vec![id, source, desc, solution, found, date_solved, tags, String::from("temp")]
+            vec![
+                id,
+                source,
+                desc,
+                solution,
+                found,
+                date_solved,
+                tags,
+                String::from("temp"),
+            ]
         }
         //Status::Unsolved => {
         //}
-        _ => {vec![String::new()]}
+        _ => {
+            vec![String::new()]
+        }
     };
 
     let mut file = std::fs::File::create(file_name).expect("Couldn't open file.");

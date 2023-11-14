@@ -13,8 +13,7 @@ pub fn cli() -> Command {
         .subcommand(
             Command::new("temp")
                 .about("Marking bug as temporarily solved.")
-                .arg(arg!(-i --id <ID>)
-                .required(true))
+                .arg(arg!(-i --id <ID>).required(true)),
         )
         .subcommand(Command::new("unsolved").about("Marking bug as unsolved"))
 }
